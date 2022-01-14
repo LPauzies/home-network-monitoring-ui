@@ -1,0 +1,18 @@
+@import 'src/styles.scss';
+
+header {
+    height: 6vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+main {
+    height: 91vh;
+    width: 99vw;
+}
+
+#chart {
+    height: 300px;
+    display: inline-block !important;
+}

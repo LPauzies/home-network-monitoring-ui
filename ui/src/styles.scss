@@ -1,4 +1,31 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+// fonts
+$font-color: white;
+
+// html elements
+$html-background-head: #494949;
+$html-background-para: #202020;
+
+html, body { 
+    height: 100%;
+    color: white;
+    background-color: $html-background-para;
+}
+
+body { 
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif; 
+}
+
+div, header, footer, main {
+    padding-top: 0.5vh;
+    padding-bottom: 0.5vh;
+    padding-left: 0.5vw;
+    padding-right: 0.5vw;
+}
+
+header, footer {
+    background-color: $html-background-head;
+}
+

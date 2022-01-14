@@ -1,0 +1,29 @@
+<header>
+    <h1>{{ title | uppercase }}</h1>
+</header>
+
+<main>
+
+    <ngx-charts-line-chart
+        [view]="view"
+        [scheme]="colorScheme"
+        [legend]="legend"
+        [legendTitle]="title"
+        [legendPosition]="legendPosition"
+        [showXAxisLabel]="showXAxisLabel"
+        [showYAxisLabel]="showYAxisLabel"
+        [xAxis]="xAxis"
+        [yAxis]="yAxis"
+        [xAxisLabel]="xAxisLabel"
+        [yAxisLabel]="yAxisLabel"
+        [yScaleMin]="yScaleMin"
+        [showGridLines]="showGridLines"
+        [timeline]="timeline"
+        [results]="events"
+        (select)="onSelect($event)"
+        (activate)="onActivate($event)"
+        (deactivate)="onDeactivate($event)"
+    >
+    </ngx-charts-line-chart>
+
+</main>
