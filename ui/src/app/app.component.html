@@ -4,26 +4,53 @@
 
 <main>
 
-    <ngx-charts-line-chart
-        [view]="view"
-        [scheme]="colorScheme"
-        [legend]="legend"
-        [legendTitle]="title"
-        [legendPosition]="legendPosition"
-        [showXAxisLabel]="showXAxisLabel"
-        [showYAxisLabel]="showYAxisLabel"
-        [xAxis]="xAxis"
-        [yAxis]="yAxis"
-        [xAxisLabel]="xAxisLabel"
-        [yAxisLabel]="yAxisLabel"
-        [yScaleMin]="yScaleMin"
-        [showGridLines]="showGridLines"
-        [timeline]="timeline"
-        [results]="events"
-        (select)="onSelect($event)"
-        (activate)="onActivate($event)"
-        (deactivate)="onDeactivate($event)"
-    >
-    </ngx-charts-line-chart>
+    <mat-grid-list cols="2" [rowHeight]="viewGridHeight">
+        <mat-grid-tile colspan="2" rowspan="2">
+            <ngx-charts-line-chart
+                [view]="viewCurve"
+                [scheme]="colorScheme"
+                [results]="events"
+                [legend]="true"
+                [legendTitle]="curveTitle"
+                [legendPosition]="legendPosition"
+                [showXAxisLabel]="true"
+                [showYAxisLabel]="true"
+                [xAxis]="true"
+                [yAxis]="true"
+                [xAxisLabel]="xAxisLabel"
+                [yAxisLabel]="yAxisLabel"
+                [yScaleMin]="0"
+                [showGridLines]="false"
+                [timeline]="true"
+                [animations]="true"
+                [tooltipDisabled]="true"
+            >
+            </ngx-charts-line-chart>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <ngx-charts-number-card
+                [scheme]="colorScheme"
+                [results]="highestPingValues"
+                [valueFormatting]="cardFormatter"
+            >
+            </ngx-charts-number-card>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <ngx-charts-bar-vertical
+                [scheme]="colorScheme"
+                [results]="packetLossValues"
+                [xAxis]="true"
+                [yAxis]="true"
+                [showXAxisLabel]="true"
+                [showYAxisLabel]="true"
+                [barPadding]="15"
+                [tooltipDisabled]="true"
+                [yScaleMin]="0"
+            >
+            </ngx-charts-bar-vertical>
+        </mat-grid-tile>
+    </mat-grid-list>
+
+    
 
 </main>

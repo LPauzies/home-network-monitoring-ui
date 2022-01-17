@@ -11,6 +11,10 @@ html, body {
     height: 100%;
     color: white;
     background-color: $html-background-para;
+    /* hide scrollbar but allow scrolling */
+    -ms-overflow-style: none; /* for Internet Explorer, Edge */
+    scrollbar-width: none; /* for Firefox */
+    overflow: hidden; /* In general */
 }
 
 body { 

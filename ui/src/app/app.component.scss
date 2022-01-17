@@ -12,7 +12,9 @@ main {
     width: 99vw;
 }
 
-#chart {
-    height: 300px;
-    display: inline-block !important;
+// CSS charts
+::ng-deep .ngx-charts { 
+    text {
+        fill: $font-color !important;
+    }
 }

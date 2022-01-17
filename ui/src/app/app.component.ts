@@ -1,5 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { map, Subscription, timer } from 'rxjs';
+import { map, Subscription, throwIfEmpty, timer } from 'rxjs';
 import { NetworkService } from 'src/services/network.service';
 import { LegendPosition } from '@swimlane/ngx-charts';
 
@@ -15,8 +15,9 @@ export class AppComponent implements OnInit {
   title: string = 'Home network dashboard';
 
   // View size
-  viewWidth: number;
-  viewHeight: number;
+  viewCurveWidth: number;
+  viewCurveHeight: number;
+  viewGridHeight: number;
 
   // Subscription
   timerSubscription: Subscription;
@@ -24,29 +25,31 @@ export class AppComponent implements OnInit {
   // Represents the map of eventtime mapped to ping
   events: any[] = [];
   // options of the curve
-  view: any;
-  legend: boolean = true;
+  viewCurve: any;
+  curveTitle: string = `${this.title} (last 24 hours)`;
   legendPosition: any = LegendPosition.Below;
-  showLabels: boolean = true;
-  animations: boolean = true;
-  xAxis: boolean = true;
-  yAxis: boolean = true;
-  showYAxisLabel: boolean = true;
-  showXAxisLabel: boolean = true;
   xAxisLabel: string = 'Time';
-  yAxisLabel: string = 'Latency';
-  yScaleMin: number = 0;
-  showGridLines: boolean = false;
-  timeline: boolean = true;
+  yAxisLabel: string = 'Latency (ms)';
 
+  // Represents the highest ping value the last 24 hours
+  highestPingValues: any[] = [];
+
+  // Represents the sum of packetloss the last 24 hours
+  packetLossValues: any[] = [];
+  // options of the bar
+  barTitle: string = `Packet loss (last 24 hours)`;
+
+  // Common color scheme for every charts
   colorScheme = {
-    domain: ['#5AA454', '#E44D25', '#CFC0BB', '#7aa3e5', '#a8385d', '#aae3f5']
+    domain: ['#6BBA5C', '#E38531', '#91C0D7', '#A56BC4', '#B5ACE5', '#A77AC6', '#FEFDFE']
   };
 
   constructor(private network: NetworkService) {
-    this.viewWidth = window.innerWidth * 0.95;
-    this.viewHeight = window.innerHeight * 0.60;
-    this.view = [this.viewWidth, this.viewHeight];
+    this.viewCurveWidth = window.innerWidth * 0.96;
+    this.viewCurveHeight = window.innerHeight * 0.5;
+    this.viewCurve = [this.viewCurveWidth, this.viewCurveHeight];
+
+    this.viewGridHeight = window.innerHeight * 0.30;
 
     // Initialize subscriptor
     this.timerSubscription = timer(0, 5000).pipe(
@@ -58,14 +61,14 @@ export class AppComponent implements OnInit {
                 response.forEach(element => {
                   this.events.push({
                     "name": `${element.DomainName} (${element.IP})`,
-                    "series": [{ "value": element.ResponseTime, "name": element.EventTime.toString() }]
+                    "series": [{ "value": element.ResponseTime, "name": this.convertTimestampToDate(element.EventTime) }]
                   });
                 })
               } else {
                 response.forEach(element => {
                   let index = this.events.findIndex(e => e.name == `${element.DomainName} (${element.IP})`);
                   this.events[index].series.push(
-                    { "value": element.ResponseTime, "name": element.EventTime.toString() }
+                    { "value": element.ResponseTime, "name": this.convertTimestampToDate(element.EventTime) }
                   );
                 });
               }
@@ -74,6 +77,44 @@ export class AppComponent implements OnInit {
 
               // Update is triggered only when this.events is reassigned and not updated in place
               this.events = [...this.events];
+            }
+          );
+          this.network.getHighestPingLast24Hours().subscribe(
+            response => {
+              if (this.highestPingValues.length == 0) {
+                response.forEach(element => {
+                  this.highestPingValues.push({
+                    "name": `${element.DomainName} (${element.IP})`,
+                    "value": element.ResponseTime
+                  });
+                })
+              } else {
+                response.forEach(element => {
+                  let index = this.highestPingValues.findIndex(e => e.name == `${element.DomainName} (${element.IP})`);
+                  this.highestPingValues[index].value = element.ResponseTime;
+                });
+              }
+              // Update is triggered only when this.highestPingValues is reassigned and not updated in place
+              this.highestPingValues = [...this.highestPingValues];
+            }
+          );
+          this.network.getPacketLossLast24Hours().subscribe(
+            response => {
+              if (this.packetLossValues.length == 0) {
+                response.forEach(element => {
+                  this.packetLossValues.push({
+                    "name": `${element.DomainName}`,
+                    "value": element.PacketLoss
+                  });
+                })
+              } else {
+                response.forEach(element => {
+                  let index = this.packetLossValues.findIndex(e => e.name == `${element.DomainName}`);
+                  this.packetLossValues[index].value = element.PacketLoss;
+                });
+              }
+              // Update is triggered only when this.packetLossValues is reassigned and not updated in place
+              this.packetLossValues = [...this.packetLossValues];
             }
           );
         }
@@ -97,27 +138,25 @@ export class AppComponent implements OnInit {
     }
   }
 
+  // This method is available to be triggered on screen resize to allow best responsiveness
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
-    this.viewWidth = event.target.innerWidth * 0.90;
-    this.viewHeight = event.target.innerHeight * 0.80;
-    this.view = [this.viewWidth, this.viewHeight];
+    this.viewCurveWidth = event.target.innerWidth * 0.96;
+    this.viewCurveHeight = event.target.innerHeight * 0.50;
+    this.viewCurve = [this.viewCurveWidth, this.viewCurveHeight];
+
+    this.viewGridHeight = event.target.innerHeight * 0.30;
   }
 
-  // Curve behaviour
-  onSelect(data: any): void {
-    console.log('Item clicked', JSON.parse(JSON.stringify(data)));
+  convertTimestampToDate(timestamp: number): string {
+    let date = new Date(timestamp * 1000);
+    let hours = (date.getHours() < 10) ? `0${date.getHours()}` : date.getHours().toString();
+    let minutes = (date.getMinutes() < 10) ? `0${date.getMinutes()}` : date.getMinutes().toString();
+    let seconds = (date.getSeconds() < 10) ? `0${date.getSeconds()}` : date.getSeconds().toString();
+    return `${hours}:${minutes}:${seconds}`;
   }
 
-  onActivate(data: any): void {
-    console.log('Activate', JSON.parse(JSON.stringify(data)));
-  }
-
-  onDeactivate(data: any): void {
-    console.log('Deactivate', JSON.parse(JSON.stringify(data)));
-  }
-
-  convertTimestampToDate(timestamp: number): any {
-
-  }
+  cardFormatter(data: any): string {
+    return `${data.value} ms`;
+  };
 }
