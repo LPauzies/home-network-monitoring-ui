@@ -32,7 +32,7 @@ export class AppComponent implements OnInit {
   yAxisLabel: string = 'Latency (ms)';
 
   // Represents the highest ping value the last 24 hours
-  highestPingValues: any[] = [];
+  lastPingValues: any[] = [];
 
   // Represents the sum of packetloss the last 24 hours
   packetLossValues: any[] = [];
@@ -57,11 +57,15 @@ export class AppComponent implements OnInit {
         () => {
           this.network.getPing().subscribe(
             response => {
-              if (this.events.length == 0) {
+              if (this.events.length == 0 && this.lastPingValues.length == 0) {
                 response.forEach(element => {
                   this.events.push({
                     "name": `${element.DomainName} (${element.IP})`,
                     "series": [{ "value": element.ResponseTime, "name": this.convertTimestampToDate(element.EventTime) }]
+                  });
+                  this.lastPingValues.push({
+                    "name": `${element.DomainName} (${element.IP})`,
+                    "value": element.ResponseTime
                   });
                 })
               } else {
@@ -70,32 +74,16 @@ export class AppComponent implements OnInit {
                   this.events[index].series.push(
                     { "value": element.ResponseTime, "name": this.convertTimestampToDate(element.EventTime) }
                   );
+                  this.lastPingValues[index].value = element.ResponseTime;
                 });
               }
               // Make the clean if needed
               this.removeMoreThan24HoursOfData();
 
+              // Update is triggered only when this.lastPingValues is reassigned and not updated in place
+              this.lastPingValues = [...this.lastPingValues];
               // Update is triggered only when this.events is reassigned and not updated in place
               this.events = [...this.events];
-            }
-          );
-          this.network.getHighestPingLast24Hours().subscribe(
-            response => {
-              if (this.highestPingValues.length == 0) {
-                response.forEach(element => {
-                  this.highestPingValues.push({
-                    "name": `${element.DomainName} (${element.IP})`,
-                    "value": element.ResponseTime
-                  });
-                })
-              } else {
-                response.forEach(element => {
-                  let index = this.highestPingValues.findIndex(e => e.name == `${element.DomainName} (${element.IP})`);
-                  this.highestPingValues[index].value = element.ResponseTime;
-                });
-              }
-              // Update is triggered only when this.highestPingValues is reassigned and not updated in place
-              this.highestPingValues = [...this.highestPingValues];
             }
           );
           this.network.getPacketLossLast24Hours().subscribe(
@@ -157,6 +145,8 @@ export class AppComponent implements OnInit {
   }
 
   cardFormatter(data: any): string {
+    // If response time is > 2s then it means the ping is KO
+    if (data.value >= 2000) return "KO";
     return `${data.value} ms`;
   };
 }

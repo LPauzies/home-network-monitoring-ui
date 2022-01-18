@@ -16,10 +16,6 @@ export class NetworkService {
     return this.http.get<Array<any>>(`${this.apiUrl}/ping`);
   }
 
-  getHighestPingLast24Hours(): Observable<Array<any>> {
-    return this.http.get<Array<any>>(`${this.apiUrl}/ping/highest`);
-  }
-
   getPacketLossLast24Hours(): Observable<Array<any>> {
     return this.http.get<Array<any>>(`${this.apiUrl}/ping/packetloss`);
   }
