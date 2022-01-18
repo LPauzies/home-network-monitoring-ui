@@ -41,7 +41,7 @@ export class AppComponent implements OnInit {
 
   // Common color scheme for every charts
   colorScheme = {
-    domain: ['#6BBA5C', '#E38531', '#91C0D7', '#A56BC4', '#B5ACE5', '#A77AC6', '#FEFDFE']
+    domain: ['#6BBA5C', '#E38531', '#91C0D7', '#A56BC4', '#DEB887', '#FFA07A', '#FFD700', '#B5ACE5']
   };
 
   constructor(private network: NetworkService) {
