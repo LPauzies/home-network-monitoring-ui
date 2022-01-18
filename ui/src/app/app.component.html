@@ -21,7 +21,7 @@
                 [yAxisLabel]="yAxisLabel"
                 [yScaleMin]="0"
                 [showGridLines]="false"
-                [timeline]="true"
+                [timeline]="false"
                 [animations]="true"
             >
             </ngx-charts-line-chart>
@@ -31,6 +31,7 @@
                 [scheme]="colorScheme"
                 [results]="lastPingValues"
                 [valueFormatting]="cardFormatter"
+                [animations]="true"
             >
             </ngx-charts-number-card>
         </mat-grid-tile>
@@ -45,6 +46,7 @@
                 [barPadding]="15"
                 [tooltipDisabled]="true"
                 [yScaleMin]="0"
+                [animations]="true"
             >
             </ngx-charts-bar-vertical>
         </mat-grid-tile>
