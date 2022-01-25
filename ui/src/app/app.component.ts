@@ -41,7 +41,7 @@ export class AppComponent implements OnInit {
 
   // Common color scheme for every charts
   colorScheme = {
-    domain: ['#6BBA5C', '#E38531', '#91C0D7', '#A56BC4', '#DEB887', '#FFA07A', '#FFD700', '#B5ACE5']
+    domain: ['#4698BC', '#8BC8D3', '#6BBB5D', '#BCDE85', '#E18731', '#F5AC91', '#A86CC5', '#B4ACE3', '#DF5D99', '#DEA1D1', '#48AA9F', '#96D1B4', '#EE7447', '#F4A3A0']
   };
 
   constructor(private network: NetworkService) {
@@ -88,6 +88,7 @@ export class AppComponent implements OnInit {
           );
           this.network.getPacketLossLast24Hours().subscribe(
             response => {
+              console.log(response);
               if (this.packetLossValues.length == 0) {
                 response.forEach(element => {
                   this.packetLossValues.push({
@@ -147,6 +148,8 @@ export class AppComponent implements OnInit {
   cardFormatter(data: any): string {
     // If response time is > 2s then it means the ping is KO
     if (data.value >= 2000) return "KO";
-    return `${data.value} ms`;
+    let valueString = `${data.value} ms`;
+    let spaceCount = 10 - valueString.length;
+    return `${valueString}${Array(spaceCount).fill('\xa0').join('')}`;
   };
 }
